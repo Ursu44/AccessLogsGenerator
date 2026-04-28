@@ -3,7 +3,6 @@ from utils import random_ip, random_user, timestamp_syslog, is_attack_wave
 
 HOSTNAME = ["server01", "server02", "user04", "laptop01", "laptop04"]
 
-
 def ssh_log(malicious=False):
     methods = ["password", "publickey", "keyboard-interactive"]
     ports   = [22, 2222, 2200, 2022, 22222]
@@ -21,14 +20,12 @@ def ssh_log(malicious=False):
         f"from {random_ip()} port {random.choice(ports)}"
     )
 
-
 def password_change_log(malicious=False):
     pid = random.randint(1000, 8000)
     return (
         f"{timestamp_syslog()} {random.choice(HOSTNAME)} passwd[{pid}]: "
         f"password changed for user {random_user()}"
     )
-
 
 def sudo_log(malicious=False):
     pid  = random.randint(1000, 8000)
@@ -58,7 +55,6 @@ def sudo_log(malicious=False):
         f"USER=root ; COMMAND={random.choice(commands)}"
     )
 
-
 def account_log(malicious=False):
     good_actions = ["created", "enabled", "password reset"]
     bad_actions  = ["deleted", "disabled", "locked"]
@@ -67,7 +63,6 @@ def account_log(malicious=False):
         f"{timestamp_syslog()} {random.choice(HOSTNAME)} ad: "
         f"user account {action} for {random_user()}"
     )
-
 
 def generate():
     malicious = is_attack_wave()
