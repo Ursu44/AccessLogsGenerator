@@ -1,14 +1,13 @@
 import random
-from utils import random_ip, random_user, timestamp_syslog
+from utils import random_ip, random_user, timestamp_syslog, is_attack_wave
 
 HOSTNAME = ["server01", "server02", "user04", "laptop01", "laptop04"]
-GOOD_RATIO = 0.65
 
 
 def ssh_log(malicious=False):
     methods = ["password", "publickey", "keyboard-interactive"]
-    ports = [22, 2222, 2200, 2022, 22222]
-    pid = random.randint(1000, 8000)
+    ports   = [22, 2222, 2200, 2022, 22222]
+    pid     = random.randint(1000, 8000)
 
     if malicious:
         return (
@@ -16,7 +15,6 @@ def ssh_log(malicious=False):
             f"Failed {random.choice(methods)} for {random_user()} "
             f"from {random_ip()} port {random.choice(ports)}"
         )
-
     return (
         f"{timestamp_syslog()} {random.choice(HOSTNAME)} sshd[{pid}]: "
         f"Accepted {random.choice(methods)} for {random_user()} "
@@ -26,7 +24,6 @@ def ssh_log(malicious=False):
 
 def password_change_log(malicious=False):
     pid = random.randint(1000, 8000)
-
     return (
         f"{timestamp_syslog()} {random.choice(HOSTNAME)} passwd[{pid}]: "
         f"password changed for user {random_user()}"
@@ -34,16 +31,14 @@ def password_change_log(malicious=False):
 
 
 def sudo_log(malicious=False):
-    pid = random.randint(1000, 8000)
+    pid  = random.randint(1000, 8000)
     user = random_user()
-
     pwds = [
         f"/home/{user}",
-        f"/var/www",
-        f"/opt/app",
+        "/var/www",
+        "/opt/app",
         "/root"
     ]
-
     commands = [
         "/bin/bash",
         "/usr/bin/apt update",
@@ -57,7 +52,6 @@ def sudo_log(malicious=False):
             f"{user} : authentication failure ; "
             f"TTY=pts/0 ; PWD={random.choice(pwds)} ; USER=root"
         )
-
     return (
         f"{timestamp_syslog()} {random.choice(HOSTNAME)} sudo[{pid}]: "
         f"{user} : TTY=pts/0 ; PWD={random.choice(pwds)} ; "
@@ -67,10 +61,8 @@ def sudo_log(malicious=False):
 
 def account_log(malicious=False):
     good_actions = ["created", "enabled", "password reset"]
-    bad_actions = ["deleted", "disabled", "locked"]
-
+    bad_actions  = ["deleted", "disabled", "locked"]
     action = random.choice(bad_actions if malicious else good_actions)
-
     return (
         f"{timestamp_syslog()} {random.choice(HOSTNAME)} ad: "
         f"user account {action} for {random_user()}"
@@ -78,7 +70,7 @@ def account_log(malicious=False):
 
 
 def generate():
-    malicious = random.random() > GOOD_RATIO
+    malicious = is_attack_wave()
 
     generators = [
         lambda: ssh_log(malicious),
